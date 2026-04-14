@@ -1,0 +1,360 @@
+ <!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jadwal Harian Okta ✨</title>
+    
+    <!-- Google Fonts: Quicksand for soft aesthetic feel -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- SweetAlert2 for beautiful alerts -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Quicksand', 'sans-serif'],
+                    },
+                    colors: {
+                        pastelBg: '#FFFDF9',
+                        pastelCard: '#FFFFFF',
+                        pastelText: '#5A5A5A',
+                        routine: '#D6E4F0', // Soft Blue
+                        hobby: '#FBD2D7',   // Soft Pink
+                        special: '#E2D5F8', // Soft Purple
+                        accent: '#FFB7B2'   // Soft Peach
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #FFFDF9;
+            background-image: radial-gradient(#E2D5F8 0.5px, transparent 0.5px), radial-gradient(#FBD2D7 0.5px, #FFFDF9 0.5px);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            color: #5A5A5A;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 32px 0 rgba(135, 135, 135, 0.1);
+        }
+
+        .task-enter {
+            animation: slideIn 0.4s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E2D5F8;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #FFB7B2;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 md:p-8 font-sans selection:bg-accent selection:text-white">
+
+    <main class="w-full max-w-3xl glass-card rounded-3xl p-6 md:p-10 relative overflow-hidden">
+        <!-- Decorative blobs -->
+        <div class="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-hobby rounded-full mix-blend-multiply filter blur-3xl opacity-50 z-0 pointer-events-none"></div>
+        <div class="absolute bottom-0 left-0 -ml-16 -mb-16 w-64 h-64 bg-special rounded-full mix-blend-multiply filter blur-3xl opacity-50 z-0 pointer-events-none"></div>
+
+        <div class="relative z-10">
+            <!-- Header section -->
+            <header class="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-tr from-accent to-hobby text-white flex items-center justify-center text-3xl font-bold shadow-lg">
+                        O
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-gray-800">Halo, Okta! 👋</h1>
+                        <p class="text-sm text-gray-500 font-medium mt-1" id="current-date">Memuat tanggal...</p>
+                    </div>
+                </div>
+                <div class="bg-white/60 px-4 py-2 rounded-2xl shadow-sm text-sm font-semibold flex items-center gap-2 border border-white">
+                    <i class="ph ph-sparkle text-accent text-lg"></i>
+                    <span>Jadikan harimu bermakna!</span>
+                </div>
+            </header>
+
+            <!-- Input Section -->
+            <section class="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 mb-8">
+                <h2 class="text-lg font-bold mb-4 flex items-center gap-2">
+                    <i class="ph ph-plus-circle text-accent text-xl"></i> Tambah Kegiatan
+                </h2>
+                <form id="task-form" class="flex flex-col md:flex-row gap-3">
+                    <input type="text" id="task-title" placeholder="Mau ngapain hari ini?" required
+                        class="flex-1 bg-pastelBg border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent focus:border-transparent transition">
+                    
+                    <input type="time" id="task-time" required
+                        class="w-full md:w-32 bg-pastelBg border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition">
+                    
+                    <select id="task-category" class="w-full md:w-40 bg-pastelBg border border-gray-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-accent transition cursor-pointer appearance-none">
+                        <option value="rutinitas">📘 Rutinitas</option>
+                        <option value="hobi">🎨 Hobi</option>
+                        <option value="spesial">✨ Spesial</option>
+                    </select>
+
+                    <button type="submit" class="bg-accent hover:bg-opacity-80 text-white font-bold py-3 px-6 rounded-xl shadow-md transition transform hover:-translate-y-1 active:translate-y-0 whitespace-nowrap">
+                        Tambah
+                    </button>
+                </form>
+            </section>
+
+            <!-- Filters -->
+            <div class="flex flex-wrap gap-2 mb-6" id="filters">
+                <button data-filter="all" class="filter-btn active bg-gray-800 text-white px-4 py-2 rounded-full text-sm font-semibold transition shadow-sm hover:opacity-90">Semua</button>
+                <button data-filter="rutinitas" class="filter-btn bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-full text-sm font-semibold transition border border-gray-200">📘 Rutinitas</button>
+                <button data-filter="hobi" class="filter-btn bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-full text-sm font-semibold transition border border-gray-200">🎨 Hobi</button>
+                <button data-filter="spesial" class="filter-btn bg-white hover:bg-gray-50 text-gray-700 px-4 py-2 rounded-full text-sm font-semibold transition border border-gray-200">✨ Momen Spesial</button>
+            </div>
+
+            <!-- Task List -->
+            <section>
+                <div id="task-list" class="space-y-3">
+                    <!-- Tasks will be injected here via JS -->
+                </div>
+                
+                <!-- Empty State -->
+                <div id="empty-state" class="hidden flex-col items-center justify-center py-10 text-center">
+                    <img src="https://api.iconify.design/noto:cherry-blossom.svg" alt="Empty" class="w-24 h-24 mb-4 opacity-80">
+                    <h3 class="text-xl font-bold text-gray-700 mb-2">Belum ada jadwal</h3>
+                    <p class="text-gray-500 max-w-sm">Jadwal kamu masih kosong nih. Yuk tambahkan kegiatan, hobi, atau momen spesialmu hari ini!</p>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // -- DATE HANDLING --
+            const dateElement = document.getElementById('current-date');
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            dateElement.textContent = new Date().toLocaleDateString('id-ID', options);
+
+            // -- DOM ELEMENTS --
+            const form = document.getElementById('task-form');
+            const titleInput = document.getElementById('task-title');
+            const timeInput = document.getElementById('task-time');
+            const categoryInput = document.getElementById('task-category');
+            const taskList = document.getElementById('task-list');
+            const emptyState = document.getElementById('empty-state');
+            const filterBtns = document.querySelectorAll('.filter-btn');
+
+            // -- STATE MANAGEMENT --
+            let tasks = JSON.parse(localStorage.getItem('okta_tasks')) || [];
+            let currentFilter = 'all';
+
+            // -- CATEGORY CONFIG --
+            const categoryConfig = {
+                rutinitas: { color: 'bg-routine', text: 'text-blue-800', icon: 'ph-book-bookmark' },
+                hobi: { color: 'bg-hobby', text: 'text-pink-800', icon: 'ph-palette' },
+                spesial: { color: 'bg-special', text: 'text-purple-800', icon: 'ph-star-four' }
+            };
+
+            // -- RENDER TASKS --
+            const renderTasks = () => {
+                taskList.innerHTML = '';
+                
+                // Sort tasks by time
+                tasks.sort((a, b) => a.time.localeCompare(b.time));
+
+                // Filter tasks
+                const filteredTasks = tasks.filter(task => {
+                    if (currentFilter === 'all') return true;
+                    return task.category === currentFilter;
+                });
+
+                if (filteredTasks.length === 0) {
+                    emptyState.classList.remove('hidden');
+                    emptyState.classList.add('flex');
+                } else {
+                    emptyState.classList.add('hidden');
+                    emptyState.classList.remove('flex');
+
+                    filteredTasks.forEach(task => {
+                        const conf = categoryConfig[task.category];
+                        const isCompleted = task.completed;
+                        
+                        const taskEl = document.createElement('div');
+                        taskEl.className = `task-enter flex items-center justify-between p-4 rounded-2xl bg-white border ${isCompleted ? 'border-gray-200 opacity-60' : 'border-gray-100 shadow-sm'} transition-all hover:shadow-md group`;
+                        
+                        taskEl.innerHTML = `
+                            <div class="flex items-center gap-4 flex-1 cursor-pointer" onclick="toggleTask('${task.id}')">
+                                <button class="w-6 h-6 rounded-full border-2 flex items-center justify-center transition-colors ${isCompleted ? 'bg-accent border-accent text-white' : 'border-gray-300 hover:border-accent text-transparent'}">
+                                    <i class="ph ph-check text-sm font-bold"></i>
+                                </button>
+                                
+                                <div class="flex flex-col md:flex-row md:items-center gap-1 md:gap-4 flex-1">
+                                    <span class="font-bold text-gray-800 w-16">${task.time}</span>
+                                    <span class="text-gray-700 font-medium text-lg ${isCompleted ? 'line-through text-gray-400' : ''}">${task.title}</span>
+                                </div>
+                            </div>
+                            
+                            <div class="flex items-center gap-3 ml-4">
+                                <span class="hidden md:flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${conf.color} ${conf.text}">
+                                    <i class="ph ${conf.icon}"></i>
+                                    <span class="capitalize">${task.category}</span>
+                                </span>
+                                
+                                <button onclick="deleteTask('${task.id}')" class="w-8 h-8 flex items-center justify-center rounded-full text-gray-400 hover:text-red-500 hover:bg-red-50 transition-colors" title="Hapus">
+                                    <i class="ph ph-trash text-lg"></i>
+                                </button>
+                            </div>
+                        `;
+                        taskList.appendChild(taskEl);
+                    });
+                }
+            };
+
+            // -- SAVE TO LOCAL STORAGE --
+            const saveTasks = () => {
+                localStorage.setItem('okta_tasks', JSON.stringify(tasks));
+                renderTasks();
+            };
+
+            // -- ADD TASK --
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const newTask = {
+                    id: Date.now().toString(),
+                    title: titleInput.value.trim(),
+                    time: timeInput.value,
+                    category: categoryInput.value,
+                    completed: false
+                };
+
+                tasks.push(newTask);
+                saveTasks();
+                
+                // Reset form
+                titleInput.value = '';
+                timeInput.value = '';
+                
+                // Show cute notification
+                Swal.fire({
+                    title: 'Yeay!',
+                    text: 'Jadwal berhasil ditambahkan 💖',
+                    icon: 'success',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    customClass: {
+                        popup: 'rounded-2xl font-sans'
+                    }
+                });
+            });
+
+            // -- TOGGLE TASK --
+            window.toggleTask = (id) => {
+                const task = tasks.find(t => t.id === id);
+                if (task) {
+                    task.completed = !task.completed;
+                    saveTasks();
+                    
+                    if(task.completed) {
+                         Swal.fire({
+                            text: 'Kerja bagus, Okta! ✨',
+                            toast: true,
+                            position: 'bottom',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            background: '#FBD2D7',
+                            color: '#5A5A5A',
+                            customClass: {
+                                popup: 'rounded-full font-sans font-bold'
+                            }
+                        });
+                    }
+                }
+            };
+
+            // -- DELETE TASK --
+            window.deleteTask = (id) => {
+                Swal.fire({
+                    title: 'Hapus jadwal?',
+                    text: "Yakin mau menghapus kegiatan ini?",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#FFB7B2',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, hapus!',
+                    cancelButtonText: 'Batal',
+                    customClass: {
+                        popup: 'rounded-2xl font-sans'
+                    }
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        tasks = tasks.filter(t => t.id !== id);
+                        saveTasks();
+                        Swal.fire({
+                            title: 'Terhapus!',
+                            text: 'Jadwal telah dihapus.',
+                            icon: 'success',
+                            timer: 1500,
+                            showConfirmButton: false,
+                            customClass: { popup: 'rounded-2xl font-sans' }
+                        });
+                    }
+                });
+            };
+
+            // -- FILTER LOGIC --
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Update active button styling
+                    filterBtns.forEach(b => {
+                        b.classList.remove('bg-gray-800', 'text-white');
+                        b.classList.add('bg-white', 'text-gray-700');
+                    });
+                    btn.classList.remove('bg-white', 'text-gray-700');
+                    btn.classList.add('bg-gray-800', 'text-white');
+
+                    // Apply filter
+                    currentFilter = btn.dataset.filter;
+                    renderTasks();
+                });
+            });
+
+            // Initial Render
+            renderTasks();
+        });
+    </script>
+</body>
+</html>
